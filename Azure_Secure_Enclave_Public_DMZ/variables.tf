@@ -11,9 +11,9 @@ variable rest_vm_ts_file { default = "vm_ts_data.json" }
 
 # Azure Environment
 variable "SP" {
-        type = "map"
+        type = map
         default = {
-                subscription_id = "xxxxx"
+                subscription_id = "77c6ebef-d849-4527-a355-742d8d7d3fdc"
                 client_id       = "xxxxx"
                 client_secret   = "xxxxx"
                 tenant_id       = "xxxxx"
@@ -28,7 +28,7 @@ variable region		{ default = "East US" }
 # NETWORK
 variable cidr	{ default = "10.90.0.0/16" }
 variable "subnets" {
-	type = "map"
+	type = map
 	default = {
 		"subnet1" = "10.90.1.0/24"
 		"subnet2" = "10.90.2.0/24"
@@ -37,7 +37,7 @@ variable "subnets" {
 }
 variable app-cidr   { default = "10.80.0.0/16" }
 variable "app-subnets" {
-        type = "map"
+        type = map
         default = {
                 "subnet1" = "10.80.1.0/24"
         }
