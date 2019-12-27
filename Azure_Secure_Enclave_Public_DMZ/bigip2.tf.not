@@ -172,7 +172,7 @@ resource "null_resource" "f5vm02_DO" {
     command = <<-EOF
       #!/bin/bash
       curl -k -X ${var.rest_do_method} https://${data.azurerm_public_ip.vm02mgmtpip.ip_address}${var.rest_do_uri} -u ${var.uname}:${var.upassword} -d @${var.rest_vm02_do_file}
-      x=1; while [ $x -le 30 ]; do STATUS=$(curl -k -X GET https://${data.azurerm_public_ip.vm01mgmtpip.ip_address}/mgmt/shared/declarative-onboarding/task -u ${var.uname}:${var.upassword}); if ( echo $STATUS | grep "OK" ); then break; fi; sleep 10; x=$(( $x + 1 )); done
+      x=1; while [ $x -le 30 ]; do STATUS=$(curl -k -X GET https://${data.azurerm_public_ip.vm02mgmtpip.ip_address}/mgmt/shared/declarative-onboarding/task -u ${var.uname}:${var.upassword}); if ( echo $STATUS | grep "OK" ); then break; fi; sleep 10; x=$(( $x + 1 )); done
       sleep 120
     EOF
   }
@@ -193,3 +193,4 @@ output "f5vm02_id" { value = azurerm_virtual_machine.f5vm02.id  }
 output "f5vm02_mgmt_private_ip" { value = azurerm_network_interface.vm02-mgmt-nic.private_ip_address }
 output "f5vm02_mgmt_public_ip" { value = data.azurerm_public_ip.vm02mgmtpip.ip_address }
 output "f5vm02_ext_private_ip" { value = azurerm_network_interface.vm02-ext-nic.private_ip_address }
+# output "test" { value = file(var.rest_vm02_do_file)}

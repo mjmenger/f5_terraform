@@ -1,21 +1,21 @@
 # Create the Interface for the App server
 resource "azurerm_network_interface" "backend01-ext-nic" {
-  name                      = "${var.prefix}-backend01-ext-nic"
-  location                  = azurerm_resource_group.main.location
-  resource_group_name       = azurerm_resource_group.main.name
-  network_security_group_id = azurerm_network_security_group.main.id
+    name                      = "${var.prefix}-backend01-ext-nic"
+    location                  = azurerm_resource_group.main.location
+    resource_group_name       = azurerm_resource_group.main.name
+    network_security_group_id = azurerm_network_security_group.main.id
 
-  ip_configuration {
-    name                          = "primary"
-    subnet_id                     = azurerm_subnet.App1.id
-    private_ip_address_allocation = "Static"
-    private_ip_address            = var.backend01ext
-    primary                       = true
-  }
+    ip_configuration {
+        name                          = "primary"
+        subnet_id                     = azurerm_subnet.App1.id
+        private_ip_address_allocation = "Static"
+        private_ip_address            = var.backend01ext
+        primary                       = true
+    }
 
-  tags = {
-    foo = "bar"
-  }
+    tags = {
+        foo = "bar"
+    }
 }
 
 # backend VM
@@ -27,24 +27,24 @@ resource "azurerm_virtual_machine" "backendvm" {
     vm_size               = "Standard_B1s"
 
     storage_os_disk {
-      name              = "backendOsDisk"
-      caching           = "ReadWrite"
-      create_option     = "FromImage"
-      managed_disk_type = "Premium_LRS"
+        name              = "backendOsDisk"
+        caching           = "ReadWrite"
+        create_option     = "FromImage"
+        managed_disk_type = "Premium_LRS"
     }
 
     storage_image_reference {
-      publisher = "Canonical"
-      offer     = "UbuntuServer"
-      sku       = "18.04-LTS"
-      version   = "latest"
+        publisher = "Canonical"
+        offer     = "UbuntuServer"
+        sku       = "18.04-LTS"
+        version   = "latest"
     }
 
     os_profile {
-      computer_name  = "backend01"
-      admin_username = "azureuser"
-      admin_password = var.upassword
-      custom_data    = <<-EOF
+        computer_name  = "backend01"
+        admin_username = "azureuser"
+        admin_password = var.upassword
+        custom_data    = <<-EOF
         #!/bin/bash
         apt-get update -y
         apt-get install -y docker.io
@@ -56,7 +56,7 @@ resource "azurerm_virtual_machine" "backendvm" {
         disable_password_authentication = false
     }
 
-  tags = {
-    application    = "app1"
-  }
+    tags = {
+        application    = "app1"
+    }
 }

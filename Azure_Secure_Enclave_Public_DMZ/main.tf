@@ -6,7 +6,7 @@ resource "azurerm_resource_group" "main" {
 
 # Create Log Analytic Workspace
 resource "azurerm_log_analytics_workspace" "law" {
-  name                  = "${var.prefix}-law"
+  name                  = format("%s-law-%s",var.prefix,random_id.tag.hex)
   sku                   = "PerNode"
   retention_in_days     = 300
   resource_group_name   = azurerm_resource_group.main.name
@@ -17,13 +17,14 @@ resource "azurerm_log_analytics_workspace" "law" {
 
 # Create a Public IP for the Virtual Machines
 resource "azurerm_public_ip" "vm01mgmtpip" {
-  name			          = "${var.prefix}-vm01-mgmt-pip"
-  location		        = azurerm_resource_group.main.location
-  resource_group_name	= azurerm_resource_group.main.name
-  allocation_method	  = "Dynamic"
+  count               = var.bigip_count
+  name                = format("%s-%s-vm%0d-mgmt-pip-%s",var.prefix,var.environment,count.index,random_id.tag.hex)
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  allocation_method   = "Dynamic"
 
   tags = {
-    Name		      = "${var.environment}-vm01-mgmt-public-ip"
+    Name		      = format("%s-%s-vm%0d-mgmt-pip-%s",var.prefix,var.environment,count.index,random_id.tag.hex)
     environment		= var.environment
     owner		      = var.owner
     group		      = var.group
@@ -32,21 +33,21 @@ resource "azurerm_public_ip" "vm01mgmtpip" {
   }
 }
 
-resource "azurerm_public_ip" "vm02mgmtpip" {
-  name			            = "${var.prefix}-vm02-mgmt-pip"
-  location              = azurerm_resource_group.main.location
-  resource_group_name   = azurerm_resource_group.main.name
-  allocation_method	    = "Dynamic"
+# resource "azurerm_public_ip" "vm02mgmtpip" {
+#   name			            = "${var.prefix}-vm02-mgmt-pip"
+#   location              = azurerm_resource_group.main.location
+#   resource_group_name   = azurerm_resource_group.main.name
+#   allocation_method	    = "Dynamic"
 
-  tags = {
-    Name		      = "${var.environment}-vm02-mgmt-public-ip"
-    environment		= var.environment
-    owner		      = var.owner
-    group		      = var.group
-    costcenter		= var.costcenter
-    application		= var.application
-  }
-}
+#   tags = {
+#     Name		      = "${var.environment}-vm02-mgmt-public-ip"
+#     environment		= var.environment
+#     owner		      = var.owner
+#     group		      = var.group
+#     costcenter		= var.costcenter
+#     application		= var.application
+#   }
+# }
 
 
 resource "azurerm_public_ip" "lbpip" {
@@ -219,35 +220,38 @@ resource "azurerm_network_security_group" "main" {
 
 # Associate the Network Interface to the BackendPool
 resource "azurerm_network_interface_backend_address_pool_association" "bpool_assc_vm01" {
+  count                   = var.bigip_count
   depends_on              = [azurerm_lb_backend_address_pool.backend_pool, azurerm_network_interface.vm01-ext-nic]
-  network_interface_id    = azurerm_network_interface.vm01-ext-nic.id
+  network_interface_id    = azurerm_network_interface.vm01-ext-nic[count.index].id
   ip_configuration_name   = "secondary"
   backend_address_pool_id = azurerm_lb_backend_address_pool.backend_pool.id
 }
 
-resource "azurerm_network_interface_backend_address_pool_association" "bpool_assc_vm02" {
-  depends_on              = [azurerm_lb_backend_address_pool.backend_pool, azurerm_network_interface.vm02-ext-nic]
-  network_interface_id    = azurerm_network_interface.vm02-ext-nic.id
-  ip_configuration_name   = "secondary"
-  backend_address_pool_id = azurerm_lb_backend_address_pool.backend_pool.id
-}
+# resource "azurerm_network_interface_backend_address_pool_association" "bpool_assc_vm02" {
+#   depends_on              = [azurerm_lb_backend_address_pool.backend_pool, azurerm_network_interface.vm02-ext-nic]
+#   network_interface_id    = azurerm_network_interface.vm02-ext-nic.id
+#   ip_configuration_name   = "secondary"
+#   backend_address_pool_id = azurerm_lb_backend_address_pool.backend_pool.id
+# }
 
 ## OUTPUTS ###
 data "azurerm_public_ip" "vm01mgmtpip" {
-  name                = format("%s-publicip01-%s",var.prefix,random_id.tag.hex)
+  count               = var.bigip_count
+  name                = azurerm_public_ip.vm01mgmtpip[count.index].name
   resource_group_name = azurerm_resource_group.main.name
   depends_on          = [azurerm_virtual_machine.f5vm01]
 }
-data "azurerm_public_ip" "vm02mgmtpip" {
-  name                = format("%s-publicip02-%s",var.prefix,random_id.tag.hex)
-  resource_group_name = azurerm_resource_group.main.name
-  depends_on          = [azurerm_virtual_machine.f5vm02]
-}
+# data "azurerm_public_ip" "vm02mgmtpip" {
+#   name                = "${azurerm_public_ip.vm02mgmtpip.name}"
+#   resource_group_name = "${azurerm_resource_group.main.name}"
+#   depends_on          = [azurerm_virtual_machine.f5vm02]
+# }
 data "azurerm_public_ip" "lbpip" {
-  name                = format("%s-publiciplb-%s",var.prefix,random_id.tag.hex)
-  resource_group_name = azurerm_resource_group.main.name
-  depends_on          = [azurerm_virtual_machine.f5vm02]
+  name                = "${azurerm_public_ip.lbpip.name}"
+  resource_group_name = "${azurerm_resource_group.main.name}"
+  depends_on          = [azurerm_virtual_machine.f5vm01]
 }
+
 
 output "sg_id" { value = azurerm_network_security_group.main.id }
 output "sg_name" { value = azurerm_network_security_group.main.name }

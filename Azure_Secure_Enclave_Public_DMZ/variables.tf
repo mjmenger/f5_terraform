@@ -24,6 +24,7 @@ variable uname	{ default = "azureuser" }
 variable upassword	{ default = "Default12345" }
 variable location	{ default = "eastus" }	 
 variable region		{ default = "East US" }
+variable bigip_count { default = 2 }
 
 # NETWORK
 variable cidr	{ default = "10.90.0.0/16" }
@@ -51,15 +52,16 @@ variable f5vm02ext_sec  { default = "10.90.2.12" }
 variable backend01ext   { default = "10.80.1.101" }
 
 # BIGIP Image
+# https://github.com/F5Networks/f5-azure-arm-templates/blob/master/supported/standalone/3nic/new-stack/payg/azuredeploy.json
 variable instance_type	{ default = "Standard_DS4_v2" }
-variable image_name	{ default = "f5-big-all-2slot-byol" }
-variable product	{ default = "f5-big-ip-byol" }
-variable bigip_version	{ default = "latest" }
+variable image_name	{ default = "f5-bigip-virtual-edition-200m-best-hourly" }
+variable product	{ default = "f5-big-ip-best" }
+variable bigip_version	{ default = "15.0.100000" }
 
 # BIGIP Setup
 ## These licenses have been tested with F5-BIG-LTM-VE-1G-V16 base SKU 
-variable license1             { default = "xxxxx" }
-variable license2             { default = "xxxxx" }
+variable license1             { default = "" }
+variable license2             { default = "" }
 variable host1_name           { default = "f5vm01" }
 variable host2_name           { default = "f5vm02" }
 variable dns_server           { default = "8.8.8.8" }
