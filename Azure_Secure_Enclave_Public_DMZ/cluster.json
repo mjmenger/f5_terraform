@@ -6,11 +6,13 @@
     "Common": {
         "class": "Tenant",
         "hostname": "${local_host}.example.com",
+        %{ if regkey != "" }
 	"myLicense": {
             "class": "License",
             "licenseType": "regKey",
             "regKey": "${regkey}"
         },
+        %{ endif}
         "dbvars": {
             "class": "DbVariables",
             "ui.advisory.enabled": true,
